@@ -12,5 +12,11 @@ To make a release:
 rebar3 release
 ```
 
+## Test
+Just run:
+```bash
+rebar3 eunit
+```
+
 Then you should find the executable in `_build/default/rel/chat_serl/bin/`
 directory.
