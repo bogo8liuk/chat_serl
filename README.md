@@ -1,9 +1,16 @@
-chat_serl
-=====
+# chat_serl
+This is a simple chat server written in Erlang.
 
-An OTP application
+## Build
+Just run:
+```bash
+rebar3 compile
+```
 
-Build
------
+To make a release:
+```bash
+rebar3 release
+```
 
-    $ rebar3 compile
+Then you should find the executable in `_build/default/rel/chat_serl/bin/`
+directory.
