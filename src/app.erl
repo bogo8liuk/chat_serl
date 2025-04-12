@@ -3,14 +3,15 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(chat_serl_app).
+-module(app).
 
 -behaviour(application).
 
 -export([start/2, stop/1]).
 
 start(_StartType, _StartArgs) ->
-    chat_serl_sup:start_link().
+    logger:set_primary_config(level, info),
+    sup:start_link().
 
 stop(_State) ->
     ok.

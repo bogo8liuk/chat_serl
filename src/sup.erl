@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(chat_serl_sup).
+-module(sup).
 
 -behaviour(supervisor).
 
