@@ -3,17 +3,17 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(app).
+-module(chat_serl_app).
 
 -behaviour(application).
 
 -export([start/2, stop/1]).
 
+-import(tcp, [listen/1, accept/1]).
+
 start(_StartType, _StartArgs) ->
     logger:set_primary_config(level, info),
-    sup:start_link().
+    chat_serl_sup:start_link().
 
 stop(_State) ->
     ok.
-
-%% internal functions

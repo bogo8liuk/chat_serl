@@ -3,18 +3,20 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(sup).
+-module(chat_serl_sup).
 
 -behaviour(supervisor).
 
--export([start_link/0]).
+-export([start_link/0, init/1, start_worker/0]).
 
--export([init/1]).
-
--define(SERVER, ?MODULE).
+-define(PORT, 5678).
 
 start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+start_worker() ->
+    logger:info("Starting new child"),
+    supervisor:start_child(?MODULE, []).
 
 %% sup_flags() = #{strategy => strategy(),         % optional
 %%                 intensity => non_neg_integer(), % optional
@@ -26,12 +28,16 @@ start_link() ->
 %%                  type => worker(),       % optional
 %%                  modules => modules()}   % optional
 init([]) ->
+    logger:info("Initiating supervisor"),
+    {ok, ListenSocket} = gen_tcp:listen(?PORT, [{active, once}]),
+    logger:info("Now listening from tcp socket"),
+    spawn_link(fun start_worker/0),
     SupFlags = #{
-        strategy => one_for_all,
-        intensity => 0,
-        period => 1
+        strategy => simple_one_for_one,
+        % Restarting set to max 60 times every 60 minutes
+        intensity => 60,
+        period => 3600
     },
-    ChildSpecs = [],
+    ChildSpecs = [{chat_serl_server, {chat_serl_server, start_link, [ListenSocket]},
+        temporary, 1000, worker, [chat_serl_server]}],
     {ok, {SupFlags, ChildSpecs}}.
-
-%% internal functions
