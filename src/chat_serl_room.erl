@@ -29,12 +29,24 @@ handle_cast({create, Id, CreatorId}, State) ->
     IsKey = orddict:is_key(Id, State),
     if IsKey -> {noreply, State};
        true ->
-          UpdatedState = orddict:store(Id, #room{id = Id, creator = CreatorId,
+          NewState = orddict:store(Id, #room{id = Id, creator = CreatorId,
               actual_users = [CreatorId]}, State),
-          {noreply, UpdatedState}
+          {noreply, NewState}
     end;
 handle_cast(rooms, State) ->
-    {noreply, lists:map(fun({_, V}) -> V end, orddict:to_list(State))}.
+    {noreply, lists:map(fun({_, V}) -> V end, orddict:to_list(State))};
+handle_cast({join, UserId, Id}, State) ->
+    try
+        NewState = orddict:update(Id,
+            fun(Room) ->
+                % NB: this doesn't preserve the order
+                Room#room{actual_users = lists:uniq([UserId | Room#room.actual_users])}
+            end, State),
+        {noreply, NewState}
+    catch
+        error:Error -> {noreply, State};
+        Throw -> {noreply, State}
+    end.
 
 handle_info(_, _) ->
   error(not_implemented).
